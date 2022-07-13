@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String? code;
 
   @override
   Widget build(BuildContext context) {
@@ -41,17 +43,34 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-          ],
-        ),
+        child: (code == null)
+        ? WebView(
+          initialUrl: 'https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=3MVG9riCAn8HHkYUeNXLeHjXdlT_o2_oQovOEmRcJqrMBmJ3SCwAhOiRbi1JuZNB5v5OGqpGko2wLr7scZtq9&redirect_uri=https://www.mywebserver.com',
+          javascriptMode: JavascriptMode.unrestricted,
+          navigationDelegate: (NavigationRequest request) {
+            if (request.url.startsWith('https://www.mywebserver.com')) {
+              print('blocking navigation to $request');
+              var url = Uri.parse(request.url);
+              setState(() {
+                code = url.queryParameters["code"];
+              });
+              print('code: $code');
+
+              return NavigationDecision.prevent;
+            }
+            else {
+              print('allowing navigation to $request');
+              return NavigationDecision.navigate;
+            }
+          },
+        )
+        : Text(code!),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), 
+      ),
     );
   }
 }
