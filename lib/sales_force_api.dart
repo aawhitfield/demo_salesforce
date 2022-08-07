@@ -11,7 +11,6 @@ class SalesForceAPI {
         'Authorization': 'Bearer $accessToken',
       }
     );
-
     if(response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = json.decode(response.body);
       if(jsonResponse.containsKey('records')) {
